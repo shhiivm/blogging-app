@@ -1,5 +1,8 @@
 const express = require("express");
 const path = require("path");
+const dbconfig = require("./config/dbconfig");
+
+dbconfig();
 
 const app = express();
 const PORT = 5000;
@@ -8,10 +11,7 @@ app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
 app.use(express.json());
-
-app.get("/", (req, res) => {
-  return res.render("home");
-});
+app.use("/", require("./routes/user"));
 
 app.listen(PORT, () => {
   console.log(`Server is live on Port ${PORT}`);
