@@ -1,4 +1,5 @@
 const userModel = require("../models/user");
+const bcrypt = require("bcrypt");
 
 //Get Login User
 const getSigninUserController = (req, res) => {
@@ -27,11 +28,13 @@ const createSignupUserController = async (req, res) => {
       return res.send("User Already Exist");
     }
 
+    const hashPass = await bcrypt.hash(password, 10);
+
     const user = await userModel.create({
       fullname,
       email,
       salt,
-      password,
+      password: hashPass,
       profileImageURL,
       role,
     });
