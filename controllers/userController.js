@@ -12,12 +12,32 @@ const getSignupUserController = (req, res) => {
 };
 
 //Post Signin User
-const createSigninUserController = async (req, res) => {};
+const createSigninUserController = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(404).send("Email and Password required");
+    }
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.status(404).send("Incorrect email or password");
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
+      return res.status(200).send("Login Successful");
+    }
+    return res.status(404).send("Incorrect email or password");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send(error);
+  }
+};
 
 //Post Signup User
 const createSignupUserController = async (req, res) => {
   try {
-    const { fullname, email, salt, password, profileImageURL, role } = req.body;
+    const { fullname, email, password } = req.body;
 
     if (!fullname || !email || !password) {
       return res.send(`name, email and password required`);
@@ -33,10 +53,7 @@ const createSignupUserController = async (req, res) => {
     const user = await userModel.create({
       fullname,
       email,
-      salt,
       password: hashPass,
-      profileImageURL,
-      role,
     });
     res.send(user);
   } catch (error) {
