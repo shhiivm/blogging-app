@@ -24,7 +24,7 @@ const logoutUserController = async (req, res) => {
 
 //Profile
 const profileUserController = async (req, res) => {
-  return res.render("profile");
+  return res.render("profile", { user: req.user });
 };
 
 //Post Signin User
@@ -50,7 +50,7 @@ const createSigninUserController = async (req, res) => {
         httpOnly: true,
         secure: false,
       });
-      return res.status(200).render("profile");
+      return res.status(200).redirect("/profile");
     }
     return res.status(404).render("login", {
       error: "Incorrect email or password",
@@ -65,14 +65,15 @@ const createSigninUserController = async (req, res) => {
 const createSignupUserController = async (req, res) => {
   try {
     const { fullname, email, password } = req.body;
-
     if (!fullname || !email || !password) {
-      return res.status(404).send(`name, email and password required`);
+      return res
+        .status(400)
+        .render("signup", { error: "All fields are required" });
     }
 
     const exist = await userModel.findOne({ email });
     if (exist) {
-      return res.status(404).send("User Already Exist");
+      return res.status(400).render("signup", { error: "User already exists" });
     }
 
     const hashPass = await bcrypt.hash(password, 10);
@@ -82,10 +83,17 @@ const createSignupUserController = async (req, res) => {
       email,
       password: hashPass,
     });
-    res.status(200).send(`Welcome ${user.fullname} to Blogify`);
+
+    // Auto login after signup
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "5d",
+    });
+    res.cookie("token", token, { httpOnly: true, secure: false });
+
+    return res.redirect("/profile");
   } catch (error) {
     console.error(error);
-    return res.send(error);
+    return res.status(500).render("signup", { error: "Something went wrong" });
   }
 };
 
