@@ -1,6 +1,6 @@
 const userModel = require("../models/user");
 const bcrypt = require("bcrypt");
-
+const jwt = require("jsonwebtoken");
 //Get Login User
 const getSigninUserController = (req, res) => {
   // return res.render("signin");
@@ -9,6 +9,22 @@ const getSigninUserController = (req, res) => {
 //Get SignUp User
 const getSignupUserController = (req, res) => {
   return res.render("signup");
+};
+//Home Page
+const homePageUserController = async (req, res) => {
+  return res.render("home", {
+    user: req.user,
+  });
+};
+//Logout
+const logoutUserController = async (req, res) => {
+  res.clearCookie("token");
+  return res.redirect("/signin");
+};
+
+//Profile
+const profileUserController = async (req, res) => {
+  return res.render("profile");
 };
 
 //Post Signin User
@@ -21,15 +37,24 @@ const createSigninUserController = async (req, res) => {
     }
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res.status(404).send("Incorrect email or password");
+      return res.status(404).render("login", {
+        error: "Incorrect email or password",
+      });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
-      return res
-        .status(200)
-        .send(`Login Successful - Welcome ${user.fullname}`);
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "5d",
+      });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+      });
+      return res.status(200).render("profile");
     }
-    return res.status(404).send("Incorrect email or password");
+    return res.status(404).render("login", {
+      error: "Incorrect email or password",
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).send(error);
@@ -65,8 +90,11 @@ const createSignupUserController = async (req, res) => {
 };
 
 module.exports = {
+  homePageUserController,
   createSigninUserController,
   createSignupUserController,
   getSigninUserController,
   getSignupUserController,
+  logoutUserController,
+  profileUserController,
 };
