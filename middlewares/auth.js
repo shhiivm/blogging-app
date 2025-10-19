@@ -11,7 +11,7 @@ module.exports = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await userModel.findById(decoded.id).select("-password");
+    const user = await userModel.findById(decoded.id).select("-password"); //exclude password
 
     if (!user) {
       res.locals.user = null;

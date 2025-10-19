@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("./partials/head.ejs") %>
+
+    <title>Blogging Application</title>
+</head>
+
+
+<body>
+  <%- include("./partials/nav.ejs") %>
+    <div class="container mt-3">
+      <form action="/addblog
+    " method="post" enctype="application/x-www-form-urlencoded">
+        <div class="mb-3">
+          <label for="coverImage" class="form-label">Cover Image</label>
+          <input type="file" class="form-control" id="coverImage" aria-describedby="coverImage" name="coverImage">
+
+        </div>
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" class="form-control" id="title" aria-describedby="title" name="title">
+
+        </div>
+        <div class="mb-3">
+          <label for="body">Body</label>
+          <textarea name="body" class="form-control" placeholder="Write your blog here" id="body"
+            style="height: 100px"></textarea>
+        </div>
+        <div class="mb-3">
+          <button type="button" class="btn btn-primary btn-lg">Add Blog</button>
+
+        </div>
+      </form>
+      </form>
+    </div>
+    <%- include("./partials/script") %>
+
+
+</body>
+
+</html>

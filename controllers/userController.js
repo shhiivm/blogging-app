@@ -1,4 +1,5 @@
 const userModel = require("../models/user");
+const blogModel = require("../models/blog");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 //Get Login User
@@ -96,6 +97,31 @@ const createSignupUserController = async (req, res) => {
     return res.status(500).render("signup", { error: "Something went wrong" });
   }
 };
+//Get Blog Page
+const getBlogPageController = async (req, res) => {
+  return res.render("addBlog");
+};
+//Add Blog
+const addBlogController = async (req, res) => {
+  try {
+    const { title, body } = req.body;
+    if (!title || !body) {
+      return res
+        .status(404)
+        .render("addBlog", { error: "Title and body is needed" });
+    }
+    const blog = await blogModel.create({
+      title,
+      body,
+    });
+    return res
+      .status(200)
+      .render("addBlog", { message: "Blog Created Sucessfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).render("addBlog", { error: "Something went wrong" });
+  }
+};
 
 module.exports = {
   homePageUserController,
@@ -105,4 +131,6 @@ module.exports = {
   getSignupUserController,
   logoutUserController,
   profileUserController,
+  addBlogController,
+  getBlogPageController,
 };
